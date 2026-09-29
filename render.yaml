@@ -1,0 +1,29 @@
+# Render Blueprint: Dashboard → New → Blueprint → pick this repository.
+# Creates a PostgreSQL database and one web service (API + website on one address).
+databases:
+  - name: tripfund-db
+    databaseName: tripfund
+    user: tripfund
+    plan: free
+
+services:
+  - type: web
+    name: tripfund
+    runtime: node
+    plan: free
+    buildCommand: npm install --include=dev && npm run build -w @tripfund/web
+    startCommand: npm start -w @tripfund/server
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: TRUST_PROXY
+        value: "1"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tripfund-db
+          property: connectionString
