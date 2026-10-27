@@ -13,5 +13,5 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["src", "scripts", "../packages/engine/src"]
+  "include": ["src", "scripts", "../api/**/*.ts", "../packages/engine/src"]
 }

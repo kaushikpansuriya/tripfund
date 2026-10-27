@@ -33,6 +33,18 @@ Or set it up by hand with a **Web Service** (runtime Node, root directory empty)
 
 Migrations run automatically on every start.
 
+## Deploy on Vercel with Render PostgreSQL
+
+Vercel serves the Vite website and runs the Express API as a Node.js Function. The API applies pending database migrations on its first request after a function starts.
+
+1. Rotate the Render database password because the previous connection URL was shared in chat. Copy the new **External Database URL** from the Render database's **Connect** menu.
+2. In Render, make sure external database connections are allowed. Add `?sslmode=require` to the URL (or `&sslmode=require` if it already has query parameters) to require TLS.
+3. Import this repository into Vercel with the repository root (`.`) as the project root. `vercel.json` configures the web build, SPA routes, API function, and migration files.
+4. In the Vercel project's **Settings → Environment Variables**, set `DATABASE_URL` to the rotated Render URL. Set it for **Production**; use a separate database for Preview deployments if you enable the API there. Also set `COOKIE_SECURE=true`. Do not commit the URL or put it in a `VITE_` variable.
+5. Deploy, then open `/api/health` on the deployed site. The first API request applies the SQL migrations and checks the database connection.
+
+Vercel Functions connect to Render using the database's external URL over the public internet, which adds latency compared with an internal Render connection. Vercel uses a small per-function PostgreSQL pool to limit connections. Existing Render deployments continue to use their current configuration.
+
 ## How the money is calculated
 
 The whole calculation lives in one dependency-free module, `packages/engine`. The API, the web app (for the live split preview) and the exports all use it, so every screen shows the same numbers.

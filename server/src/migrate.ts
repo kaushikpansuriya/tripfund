@@ -1,8 +1,10 @@
 import { readdir, readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pool } from './db.ts';
 
-const MIGRATIONS_DIR = fileURLToPath(new URL('../migrations/', import.meta.url));
+const MIGRATIONS_DIR =
+  process.env.VERCEL === '1' ? resolve(process.cwd(), 'server/migrations') : fileURLToPath(new URL('../migrations/', import.meta.url));
 const LOCK_ID = 7_202_609;
 
 /** Apply every migrations/*.sql file that has not run yet, in name order. */
@@ -17,7 +19,7 @@ export async function migrate(log: (message: string) => void = console.log): Pro
     const files = (await readdir(MIGRATIONS_DIR)).filter((f) => f.endsWith('.sql')).sort();
     for (const file of files) {
       if (applied.has(file)) continue;
-      const text = await readFile(MIGRATIONS_DIR + file, 'utf8');
+      const text = await readFile(resolve(MIGRATIONS_DIR, file), 'utf8');
       log(`Applying migration ${file}`);
       await client.query('BEGIN');
       try {
