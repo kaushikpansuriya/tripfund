@@ -1,0 +1,9 @@
+{
+  // Used by Vercel when it compiles the API function. Node runs the .ts files
+  // directly elsewhere; here the emitted .js must import .js, not .ts.
+  "extends": "../server/tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "rewriteRelativeImportExtensions": true
+  }
+}
